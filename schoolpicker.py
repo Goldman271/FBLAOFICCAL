@@ -1,9 +1,11 @@
 from flet import *
 import sqlite3
+'''route to studentHome, parentHome, teacherHome depending on value of typeOfUser'''
 
 con = sqlite3.connect("fblaproject.db",check_same_thread=False)
 cur = con.cursor() 
 currentValues = []
+typeOfUser = cur.execute("""SELECT userType from Users""")
 def search(query):
     req = cur.execute("SELECT * FROM School")
     rows = cur.fetchall()

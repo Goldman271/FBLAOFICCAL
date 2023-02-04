@@ -36,7 +36,7 @@ def main(page:Page):
     def createAcct():
         page.clean()
         usertype = Dropdown(autofocus = True, options=
-                            [dropdown.Option("Student"), dropdown.Option("Parent"), dropdown.Option("Teacher")],)
+        [dropdown.Option("Student"), dropdown.Option("Parent"), dropdown.Option("Teacher")],)
         newUser = TextField(label = "Type your new username")
         newUserEmail = TextField(label = "Type your email", keyboard_type="email")
         pwd = TextField(label = "Set a password", password=True, can_reveal_password=True)
