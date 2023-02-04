@@ -5,3 +5,4 @@ class Student:
         self.password = password
         self.grade = grade
         self.teachers = []
+        self.parents = []
