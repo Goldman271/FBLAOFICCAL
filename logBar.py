@@ -1,6 +1,6 @@
 from flet import *
 from logbarRoute import views_Handler
-View    
+    
 def main(page: Page):
     def routeChange(route):
         print(page.route)

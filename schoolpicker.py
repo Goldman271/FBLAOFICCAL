@@ -23,11 +23,13 @@ def search(query):
             for i in row:
                 currentValues.append(i)
                 print(currentValues)
-            cur.execute("""
+            page.session.set("schoolInfo", currentValues)
+            '''cur.execute("""
         INSERT INTO Current VALUES
         (?, ?, ?, ?, ?, ?, ?, ?, ?)
     """, (row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7], row[8]))
-            con.commit()
+            con.commit()'''
+            #route to either studentHome, parentHome, or teacherHome here after if statement clears
         else: 
             searchField.error_text = "Hmm, we couldn't find what you were looking for."
             page.update()

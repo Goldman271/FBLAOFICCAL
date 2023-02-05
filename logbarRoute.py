@@ -126,9 +126,6 @@ def views_Handler(page):
 
         
                 ]
-        )  
+        ),
     }
-
-    
-    
 

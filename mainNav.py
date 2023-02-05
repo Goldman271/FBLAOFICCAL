@@ -2,46 +2,73 @@ from flet import *
 import sqlite3
 from authentication import authenticate, createAcct, loginField
 from schoolpicker import pickSchool
+from mainNav2 import views_Handler
+
 def main(page: Page):
-    page.title = "Login"
-    def route_change(route):
+    def routeChange(route):
         print(page.route)
         page.views.clear()
-        if page.route == "/":
-            page.views.append(
-                View(
-                "/",
-                [loginField()]
-                ),)
-        if page.route == "/schoolSelect":
-            page.views.append(View(
-            "/schoolSelect",
-            [pickSchool]
-            ),)
-        elif page.route == "/studentHome":
-            page.views.append(View(
-            "/studentHome",
-            [],
-            ),)
-        elif page.route == "/parentHome":
-            page.views.append(View(
-            "/parentHome",
-            []
-            ),)
-        elif page.route == "/educatorHome":
-            page.views.append(View(
-            "/educatorHome",
-            []
-            ),
+        page.views.append(
+            views_Handler(page)[page.route]
         )
-    def view_pop(view):
-        page.views.pop()
-        top_view = page.views[-1]
-        page.go(top_view.route)
 
-    page.on_route_change = route_change
-    page.on_view_pop = view_pop
-    print(page.route)
+
+    page.on_route_change = routeChange
+    
+#Below is the code for the dropdown that is seen in the far right on the Appbar.
+    def check_item_clicked(e):
+        e.control.checked = not e.control.checked
+        page.update() 
+    colors="don't matter",
+    pb = PopupMenuButton(
+        items=[
+           PopupMenuItem(
+                text="Central Forsyth High School",  on_click= lambda _: page.go('/studentHome'),
+             ),
+           PopupMenuItem(),
+           PopupMenuItem(
+                text="Alliance Academy for Innovation",  on_click= lambda _: page.go('Alliance Academy')
+            ),
+           PopupMenuItem(),
+           PopupMenuItem(
+             text="West Forsyth High School", on_click= lambda _: page.go('West Forsyth')
+           ),  # divider
+            
+        ]
+    )
+    return{
+'school':View(
+    
+        page.add(
+            AppBar(
+            bgcolor="lightBlue",
+            title=Text("County County FBLA", color="White", weight="bold"),
+        
+        actions=[
+        IconButton(
+            icon=icons.SEARCH,
+            
+         ),
+        IconButton(
+            icon=icons.LOGIN, on_click= lambda _: SystemExit
+
+        ),
+        #We're calling the dropdown function here.
+        (pb)        
+
+        
+        ]        
+        ),
+            )
+    
+
+        
+        
+        ),
+    
+    }
+    
+
+
 
 app(target=main)
-    
