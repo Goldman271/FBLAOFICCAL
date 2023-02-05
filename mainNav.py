@@ -1,7 +1,12 @@
 from flet import *
 import sqlite3
+<<<<<<< Updated upstream
 from authentication import authenticate, createAcct, loginField
 from schoolpicker import pickSchool
+=======
+from mainNav2 import views_Handler
+
+>>>>>>> Stashed changes
 def main(page: Page):
     page.title = "Login"
     def route_change(route):
