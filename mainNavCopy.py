@@ -33,9 +33,8 @@ def main(page: Page):
     #search for schools
     def search(query):
         currentValues = []
-        if type(page.session.get("currentUser")) == list:
-            typeOfUser = page.session.get("CurrentUser")[4]
-        else: 
+        typeOfUser = page.session.get("CurrentUser")[4]
+        '''else: 
             usertype = Dropdown(autofocus = True, options=
         [dropdown.Option("Student"), dropdown.Option("Parent"), dropdown.Option("Teacher")],)
             def defineUserType(value):
@@ -44,8 +43,8 @@ def main(page: Page):
                     page.clean()
                 else: 
                     usertype.error_text = "Select an option."
-            resubmit = ElevatedButton(text = "Submit", on_click = defineUserType())
-            page.add(usertype, resubmit)
+            resubmit = ElevatedButton(text = "Submit", on_click = defineUserType(usertype))
+            page.add(usertype, resubmit)'''
         cur=con.cursor()
         req = cur.execute("SELECT * FROM School")
         rows = cur.fetchall()
@@ -57,16 +56,22 @@ def main(page: Page):
                     print(currentValues)
                 page.session.set("schoolInfo", currentValues)
                 if typeOfUser == "Student":
-                    page.route = "/studentHome"
+                    page.go("/studentHome")
                 elif typeOfUser == "Parent":
-                    page.route = "/parentHome"
+                    page.go("/parentHome")
                 elif typeOfUser == "Teacher":
-                    page.route = "/educatorHome"
+                    page.go("/educatorHome")
             elif str(row[2]) == str(query):
                 for i in row:
                     currentValues.append(i)
-                    print(currentValues)
                 page.session.set("schoolInfo", currentValues)
+                if typeOfUser == "Student":
+                    page.go("/studentHome")
+                    print("got there!")
+                elif typeOfUser == "Parent":
+                    page.go("/parentHome")
+                elif typeOfUser == "Teacher":
+                    page.go("/educatorHome")
     username = TextField(label = "Type username or email")
     password = TextField(label = "Password", password=True, can_reveal_password= True)
     submit = ElevatedButton(text="Submit", on_click = lambda _: authenticate(username.value, password.value))
@@ -134,14 +139,18 @@ def main(page: Page):
     page.pubsub.subscribe(on_message)
 
     def send_click(e):
-        page.pubsub.send_all(f"{user.value}: {message.value}")
+        page.pubsub.send_all(f"{user}: {message.value}")
+        timestamp = datetime.datetime.now()
+        cur = con.cursor()
+        recipient = [] #is there a way to check who is getting these messages? that's what belongs in the recipient box
+        cur.execute("""INSERT INTO Messages VALUES(?, ?, ?, ?)""", (user, message.value, timestamp, recipient))
         # clean up the form
         message.value = ""
         page.update()
 
     messages = Column()
     user = page.session.get("CurrentUser")
-    if type(user) != None:
+    if type(user) == list:
         user = page.session.get("CurrentUser")[5]
     else:
         def setUser():
@@ -166,13 +175,13 @@ def main(page: Page):
             page.views.append(
                 View(
                 "/",
-                [name, username, password, submit, goToCreate]
+                [username, password, submit, goToCreate]
                 ),)
         elif page.route == "/createAccount":
             page.views.append(
                 View(
                 "/createAccount",
-                [usertype, newUser, newUserEmail, pwd, verifypwd, createBtn]
+                [name, usertype, newUser, newUserEmail, pwd, verifypwd, createBtn]
                 )
             )
         elif page.route == "/schoolSelect":
@@ -188,7 +197,7 @@ def main(page: Page):
         elif page.route == "/studentHome":
             page.views.append(View(
             "/studentHome",
-            [ElevatedButton(text = "Search for school", on_click = page.go("/schoolSelect"))],
+            [searchField, searchBtn],
             ),)
         elif route == "/parentHome":
             page.views.append(View(
