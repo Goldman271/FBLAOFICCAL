@@ -4,11 +4,10 @@ from schoolClass import School
 import datetime
 def main(page: Page):
     con = sqlite3.connect("fblaproject.db", check_same_thread=False)
-    cur = con.cursor()
+    cur=con.cursor()
     #function to verify password
     def authenticate(user, key):
         userList = (cur.execute("SELECT * FROM Users")).fetchall()
-        cur.close()
         match=False
         for i in userList:
             if user == i[0] or user == i[1]:
@@ -64,10 +63,10 @@ def main(page: Page):
             elif str(row[2]) == str(query):
                 for i in row:
                     currentValues.append(i)
+                    print(currentValues)
                 page.session.set("schoolInfo", currentValues)
                 if typeOfUser == "Student":
                     page.go("/studentHome")
-                    print("got there!")
                 elif typeOfUser == "Parent":
                     page.go("/parentHome")
                 elif typeOfUser == "Teacher":
@@ -88,11 +87,11 @@ def main(page: Page):
     newUserEmail = TextField(label = "Type your email", keyboard_type="email")
     pwd = TextField(label = "Set a password", password=True, can_reveal_password=True)
     verifypwd = TextField(label = "Verify password", password=True, can_reveal_password=True)
-    name = TextField(label = "What's your name?")
+    name = TextField(label = "What's your name?",capitalization="words")
     def init():
         if pwd.value == verifypwd.value:
             cur = con.cursor()
-            cur.execute("""INSERT INTO Users VALUES(?, ?, ?, ?, ?, ?)""", (newUser.value, newUserEmail.value, pwd.value, "", usertype.value, name.value))
+            cur.execute("""INSERT INTO Users VALUES(?, ?, ?, ?, ?, ?, ?)""", (newUser.value, newUserEmail.value, pwd.value, "", usertype.value, name.value, False))
             con.commit()
             cur.close()
             if usertype.value == "Student":
@@ -144,6 +143,7 @@ def main(page: Page):
         cur = con.cursor()
         recipient = [] #is there a way to check who is getting these messages? that's what belongs in the recipient box
         cur.execute("""INSERT INTO Messages VALUES(?, ?, ?, ?)""", (user, message.value, timestamp, recipient))
+        con.commit()
         # clean up the form
         message.value = ""
         page.update()
@@ -166,8 +166,25 @@ def main(page: Page):
     send = ElevatedButton("Send", on_click=send_click)
     page.add(messages, Row(controls=[displayUser, message, send]))
 
+    #report absences
+    studentField = TextField(label = "Student Name:", capitalization="words")
+    reason = TextField(label = "Reason for absence", multiline=True)
+    def updateDB():
+        cur = con.cursor()
+        x = cur.execute("SELECT name FROM Users").fetchall()
+        y = "UPDATE Users SET Absent = 1 WHERE name = (?)"
+        checker = [i[0] for i in x]
+        if studentField.value in checker:
+            cur.execute(y, (studentField.value,))
+            page.go('/parentHome')
+        else:
+            studentField.error_text = "Student name not recognized"
+            page.update()
+    submitAbsence = ElevatedButton(text = "Report", on_click = lambda _: updateDB())
+
+
     #actual page
-    page.title = "Login"
+    page.title = "Our App"
     def route_change(route):
         print(page.route)
         page.views.clear()
@@ -197,17 +214,27 @@ def main(page: Page):
         elif page.route == "/studentHome":
             page.views.append(View(
             "/studentHome",
-            [searchField, searchBtn],
+            [ElevatedButton(text = "Search for school", on_click = lambda _: page.go('/schoolSelect'))],
             ),)
-        elif route == "/parentHome":
+        elif page.route == "/studentHome2":
+            page.views.append(View(
+                "/studentHome2",
+                #calendar and stuff goes here
+            ))
+        elif page.route == "/parentHome":
             page.views.append(View(
             "/parentHome",
-            [ElevatedButton(text = "Report Absence")]
+            [ElevatedButton(text = "Report Absence", on_click = lambda _: page.go('/reportAbsence'))]
             ),)
-        elif route == "/educatorHome":
+        elif page.route == '/reportAbsence':
+            page.views.append(View(
+                "/reportAbsence",
+                [studentField, reason, submitAbsence]
+            ))
+        elif page.route == "/educatorHome":
             page.views.append(View(
             "/educatorHome",
-            [Text("Educator")]
+            []
             ),
         )
     def view_pop(view):

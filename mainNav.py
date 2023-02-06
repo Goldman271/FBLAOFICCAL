@@ -1,4 +1,4 @@
-from flet import *
+'''from flet import *
 import sqlite3
 <<<<<<< Updated upstream
 from authentication import authenticate, createAcct, loginField
@@ -49,4 +49,4 @@ def main(page: Page):
     print(page.route)
 
 app(target=main)
-    
+'''
