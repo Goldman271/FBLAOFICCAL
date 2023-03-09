@@ -1,10 +1,10 @@
 #from studentClass import Student
 import sqlite3
 class School:
+    ct = 0
     def __init__(self, name, county):
         #con = sqlite3.connect("fblaproject.db",check_same_thread=False)
         #cur = con.cursor() 
-        ct = 0
         self.name = name
         self.county = county
         self.number = 10575 + ct
