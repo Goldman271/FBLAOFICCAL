@@ -4,6 +4,15 @@ from schoolClass import School
 import datetime
 import random
 def main(page: Page):
+    page.scroll = "adaptive"
+    page.theme = Theme(color_scheme_seed="#d9cea9", font_family= "Quire Sans")
+    page.update()
+    def showLogo():
+        x = Image(src = "https://mail-attachment.googleusercontent.com/attachment/u/0/?ui=2&ik=c6c952aca9&attid=0.1&permmsgid=msg-f:1759849287570398120&th=186c3d9a5bdb9ba8&view=att&disp=inline&realattid=f_lf0e7mpp0&saddbat=ANGjdJ8cZ7WCZhcFVn0-21lkxS2QG7SIJ4cBq-enlNNr1KklySfP_nd8LmFA108_QRNlAukWzCDUNPhXLw7yIvCsdi0CNN8B60RJSn_J7c-5Hh3YqR9-_6XlnKWQOx9hP2-Ua_qoOYrlAxgZ8VoYHtqmLiPT6NKrrCJMe1Dbc-ZQX5DRsOYAgzJDS4iF5bwSY1lNYJkDbSRMRzbGw56o7jWz62YFuBXSjrRW1wSwaN3SmsDY7gPCJ-EB3osuAfEavSqsK0UqCeOHNJIJdextpQguSEsNuojab2XNIbFhKLNLPuYy_e2dGqQCAFRYaaQlcHFRAa33NgLixI9F17Vqs4MLN6w7DLI1SWI_oot64StCBd3F6TfbgOFovYzR4n2kBSNbYZO9w55GfMnvlNNKHze2_3Taj6_o7fzGqpczfph2wbhAVcakqfU-XfFnhpGA9fpAf3bP7cGsS2KQ_ji7MlKWF4POEYdJMkOER9nQFrsATaodGPx2cdLhIzGI-K9WYzCgD2ZJgxGn9jD33n8XdJgi0YB8afNIWKMlBDQ5yrrcISaQBtGKAvruY6tHvToQ-bYj4hKiEjtoNCEEOZKjweXmMEa7lztfpCLouX00_Hi-LR2fJc3D3rUzlt-gA7HBomEr1_cpB7fd1u0kESNOZ7qsOuILC11aeVmBHD4ATX5wW_s_JsIGCiOpzEnHziAC1aXgEk28N9VA1G3kiXCxcIc_nm7YnUi2XBOnn-EpqGOJQvdSHV51CM-fd-PJbz3D6HEy3eECgzLvhmlYweBlTEPlc3g-OtzYiJHPAUW3wN0R4ILUU48nuw2QBfDTDpB0EMSzXs1ReQenuNuxS93q0eQOLYuJ5llTh8ZXyejbkR7irJ7rOk7O08ASnIm3IGFS7HP__UnmBAi1LOu-dJfIdF4QBTvBJIKpxCaQ240T7SOzQaE8eiZ0Q5Rb_kWTROsrSthsSUQEOXma6zuXYmALYB_tta1DQRgU2gf9GW6_ZPhxkJKCb1VdRJtl2wI5n42sxTy7AkxJI8rBBg9prJJ82l68SXpZASJSFYLkOUWmdA")
+        page.add(x)
+        page.update()
+    page.on_connect = showLogo()
+
     con = sqlite3.connect("fblaproject.db", check_same_thread=False)
     cur=con.cursor()
     #function to verify password
@@ -262,6 +271,7 @@ def main(page: Page):
         dlg = AlertDialog(content = Text("Event has been created."), on_dismiss=page.go("/educatorHome2"))
         dlg.open = True
         page.update()
+        page.go("/educatorHome2")
     title = TextField(label = "Name of event")
     date = TextField(label = "Date of event", keyboard_type="datetime")
     time = TextField(label = "Time of event", keyboard_type="datetime")
@@ -296,6 +306,9 @@ def main(page: Page):
                 )
             )
         elif page.route == "/schoolSelect":
+            list = cur.execute("SELECT name FROM School")
+            for i in list:
+                y = TextButton(text = "Select")
             page.views.append(View(
             "/schoolSelect",
             [AppBar(title = Text("Search"), bgcolor = colors.SURFACE_VARIANT), searchField, searchBtn]
@@ -340,9 +353,29 @@ def main(page: Page):
             if grid.controls == []:
                 msg = Text("No upcoming events.")
                 page.add(msg)
+            tabs = Tabs(
+            selected_index = 1, 
+            animation_duration = 275,
+            tabs = [
+                Tab(
+                    text = "Upcoming Events", 
+                    content = grid,
+                ),
+                Tab(
+                    text = "Calendar",
+                    content = Image(src = "https://www.forsyth.k12.ga.us/site/UserControls/Calendar/CalendarPrint.aspx?ModuleInstanceID=59455&PageID=49684&DomainID=4658&Date=29&Month=2&Year=2023&View=month"),
+                )
+            ]
+        )
             page.views.append(View(
                 "/studentHome2",
                 [AppBar(title = Text(page.session.get("schoolInfo")[0]), bgcolor = colors.SURFACE_VARIANT, actions = [
+                    IconButton(
+                        icon = icons.SHOPPING_CART,
+                        icon_color = colors.BLACK,
+                        tooltip = "School Store",
+                        on_click = lambda _: page.go("/schoolStore")
+                    ),
                     IconButton(
                         icon = icons.LOGOUT,
                         icon_color=colors.BLACK,
@@ -355,7 +388,7 @@ def main(page: Page):
                         tooltip = "Messages",
                         on_click = lambda _: page.go('/messages')
                     )
-                ],), grid]
+                ],), tabs]
             ))
         elif page.route == "/parentHome":
             page.views.append(View(
@@ -395,7 +428,7 @@ def main(page: Page):
                     ),
                     Tab(
                         text = "Calendar",
-                        content = Text("put calendar here"),
+                        content = Image(src = "https://www.forsyth.k12.ga.us/site/UserControls/Calendar/CalendarPrint.aspx?ModuleInstanceID=59455&PageID=49684&DomainID=4658&Date=29&Month=2&Year=2023&View=month"),
                     )
                 ]
             )
@@ -403,6 +436,12 @@ def main(page: Page):
                 "/parentHome2",
                 [
                 AppBar(title = Text(page.session.get("schoolInfo")[0]), bgcolor = colors.SURFACE_VARIANT, actions = [
+                    IconButton(
+                        icon = icons.SHOPPING_CART,
+                        icon_color = colors.BLACK,
+                        tooltip = "School Store",
+                        on_click = lambda _: page.go("/schoolStore")
+                    ),
                     IconButton(
                         icon = icons.MESSAGE_OUTLINED,
                         icon_color = colors.BLACK,
@@ -429,9 +468,9 @@ def main(page: Page):
             ),
         )
         elif page.route == '/educatorHome2':
-            grid = GridView(runs_count=3, child_aspect_ratio=4.0)
+            grid = GridView(runs_count=3, child_aspect_ratio=4.0, width = page.width)
             page.add(grid)
-            colorsList = [colors.YELLOW_50, colors.PURPLE_200, colors.LIGHT_BLUE_100, colors.GREEN_100, colors.PINK_100, colors.INVERSE_SURFACE, colors.SURFACE_VARIANT, colors.BLUE_GREY_100, colors.CYAN_100, colors.ORANGE_100]
+            colorsList = [colors.YELLOW_50, colors.PURPLE_200, colors.LIGHT_BLUE_100, colors.GREEN_100, colors.PINK_100, colors.SURFACE_VARIANT, colors.BLUE_GREY_100, colors.CYAN_100, colors.ORANGE_100]
             school = page.session.get("schoolInfo")[0]
             EventsList = cur.execute("""SELECT * from Event""").fetchall()
             for i in EventsList:
@@ -445,28 +484,44 @@ def main(page: Page):
                 msg = Text("No upcoming events.")
                 page.add(msg)
 
-            editUpcoming = [grid, title, date, time, description, createEventBtn]
+            createEventBtn2 = ElevatedButton(text = "Create a New Event", on_click = lambda _: page.go("/createEvent"))
+            getSchoolStore = """SELECT * FROM SchoolStoreItems WHERE school = (?)"""
+            items = cur.execute(getSchoolStore, (page.session.get("schoolInfo")[0],))
+            itemsDisplay = GridView(runs_count = 2, expand=1)
+            for i in items:
+                print(i)
+                x = Column(controls = [Image(src = i[0]), Text(i[1]), Text(i[2])])
+                itemsDisplay.controls.append(x)
+
+            goToCreateItem = ElevatedButton(text = "Create a New Item", on_click = lambda _: page.go("/createItem"))
+            def createItem(a, b, c, d, e):
+                cur.execute("INSERT INTO SchoolStoreItems VALUES(?,?,?,?,?)", (a, b, c, d, e))
+                con.commit()
+                page.go("/educatorHome2")
+            itemsColumn = Column(controls = [goToCreateItem, itemsDisplay])
             tabs = Tabs(
                 selected_index = 1, 
                 animation_duration = 275,
                 tabs = [
                     Tab(
-                        text = "Edit General Info", 
-                        content = Text("General Info abt school"),
-                    ),
-                    Tab(
                         text = "Edit School Store",
-                        content = Text("put calendar here"),
+                        content = itemsColumn,
                     ),
                     Tab(
                         text = "Edit Upcoming Events",
-                        content = Column(controls = editUpcoming),
+                        content = Column(controls = [grid, createEventBtn2]),
                     ),
                 ]
             )
             page.views.append(View(
                 '/educatorHome2',
                 [AppBar(title = Text("Admin"), bgcolor = colors.SURFACE_VARIANT, actions = [
+                    IconButton(
+                        icon = icons.SHOPPING_CART,
+                        icon_color = colors.BLACK,
+                        tooltip = "School Store",
+                        on_click = lambda _: page.go("/schoolStore")
+                    ),
                     IconButton(
                         icon = icons.MESSAGE_OUTLINED,
                         icon_color = colors.BLACK,
@@ -507,7 +562,41 @@ def main(page: Page):
                 selected_files,])]
             ))
         elif page.route == "/schoolStore":
-            page.views.append(View('/schoolStore', [Text("School Store")]))
+            getSchoolStore = """SELECT * FROM SchoolStoreItems WHERE school = (?)"""
+            items = cur.execute(getSchoolStore, (page.session.get("schoolInfo")[0],))
+            itemsDisplay = GridView(runs_count = 2)
+            for i in items:
+                x = Column(controls = [Image(src = i[0]), Text(i[1]), Text(i[2])])
+                itemsDisplay.controls.append(x)
+            page.views.append(View('/schoolStore', [AppBar(title = Text("School Store"), actions = [
+                    IconButton(
+                        icon = icons.LOGOUT,
+                        icon_color=colors.BLACK,
+                        tooltip = "Logout",
+                        on_click=lambda _: page.go("/")
+                    ),
+                    IconButton(
+                        icon = icons.ARROW_BACK,
+                        icon_color = colors.BLACK,
+                        tooltip = "Exit",
+                        on_click = lambda _: reroute()
+                    )]), itemsDisplay
+            ])),
+        elif page.route == "/createItem":
+            imageField = TextField(label = "Link to image")
+            productnameField = TextField(label = "Name of Product")
+            priceField = TextField(label = "Price")
+            linkField = TextField(label = "Link for payment")
+            def createItem(a, b, c, d, e):
+                cur.execute("INSERT INTO SchoolStoreItems VALUES(?,?,?,?,?)", (a, b, c, d, e))
+                con.commit()
+                page.go("/educatorHome2")
+            addNewItem = ElevatedButton(text = "Add Item", on_click=lambda _: createItem(imageField.value, productnameField.value, priceField.value, linkField.value, page.session.get("schoolInfo")[0]))
+            page.views.append(View('/createItem', [imageField, productnameField, priceField, linkField, addNewItem]))
+
+        elif page.route == "/createEvent":
+            createEventColumn = Column(controls = [title, date, time, description, createEventBtn], scroll = "adaptive")
+            page.views.append(View('/createEvent', [createEventColumn]))
 
     def view_pop(view):
         page.views.pop()

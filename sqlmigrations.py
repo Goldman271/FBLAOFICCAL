@@ -5,4 +5,5 @@ cur.execute("CREATE TABLE Users(user, email, pwd, schools, UserType, name, Absen
 cur.execute("CREATE TABLE School(name, county, id, events, students, teachers, schoolStoreBool, schoolStore, editors)")
 cur.execute("CREATE TABLE Messages(Sender, content, timestamp, recipient)")
 cur.execute("CREATE TABLE Event(title, date, time, description, school)")
+cur.execute("CREATE TABLE SchoolStoreItems(image, name, price, link, school)")
 con.commit()
