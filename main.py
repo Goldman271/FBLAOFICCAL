@@ -95,6 +95,7 @@ def main(page: Page):
     password = TextField(label = "Password", password=True, can_reveal_password= True)
     submit = ElevatedButton(text="Submit", on_click = lambda _: authenticate(username.value, password.value))
     goToCreate = TextButton(text = "Don't have an account?", on_click = lambda _: page.go('/createAccount'))
+    BugReportButton = TextButton(text="Report Bug", on_click = lambda _: page.go("/bug"))
     
     #for schoolpicker
     searchField = TextField(hint_text="Enter school code or school name...", capitalization="words")
@@ -308,11 +309,14 @@ def main(page: Page):
             )
         elif page.route == "/schoolSelect":
             list = cur.execute("SELECT name FROM School")
+            def goToSchool():
+                typeOfUser = page.session.get("CurrentUser")[4]
+                pass
             for i in list:
-                y = TextButton(text = "Select")
+                y = TextButton(text = "Select", on_click = lambda _: goToSchool(i))
             page.views.append(View(
             "/schoolSelect",
-            [AppBar(title = Text("Search"), bgcolor = colors.SURFACE_VARIANT), searchField, searchBtn]
+            [AppBar(title = Text("Search"), bgcolor = colors.SURFACE_VARIANT), searchField, searchBtn, Text("For the purposes of this demonstration, type Alliance Academy for Innovation into the search bar")]
             ),) 
         elif page.route == "/createSchool":
             page.views.append(View(
@@ -376,7 +380,7 @@ def main(page: Page):
                         tooltip = "Messages",
                         on_click = lambda _: page.go('/messages')
                     )
-                ],), grid, IconButton(icon = icons.CALENDAR_MONTH, on_click = lambda _: page.go("/calendar"))]
+                ],), grid, IconButton(icon = icons.CALENDAR_MONTH, on_click = lambda _: page.go("/calendar")), BugReportButton]
             ))
         elif page.route == "/parentHome":
             page.views.append(View(
@@ -428,12 +432,12 @@ def main(page: Page):
                         tooltip = "Logout",
                         on_click=lambda _: page.go("/auth")
                     ),
-            ]), ElevatedButton(text = "Report Absence", on_click = lambda _: page.go('/reportAbsence')), grid, IconButton(icon = icons.CALENDAR_MONTH, on_click = lambda _: page.go("/calendar"))]
+            ]), ElevatedButton(text = "Report Absence", on_click = lambda _: page.go('/reportAbsence')), grid, IconButton(icon = icons.CALENDAR_MONTH, on_click = lambda _: page.go("/calendar")), BugReportButton]
             ))
         elif page.route == '/reportAbsence':
             page.views.append(View(
                 "/reportAbsence",
-                [AppBar(title = Text("Create Event"), actions = [IconButton(
+                [AppBar(title = Text("Report Absence"), actions = [IconButton(
                         icon = icons.ARROW_BACK,
                         icon_color = colors.BLACK,
                         tooltip = "Exit",
@@ -469,7 +473,9 @@ def main(page: Page):
             cargos = Column(controls = [Image(src = f"/sp-pgm-dc-11.jpg", height = 100, fit = ImageFit.CONTAIN), Text("Pants"), Text("$40")])
             hoodie2 = Column(controls = [Image(src = f"/365-Organic-Cotton-Hoodie-Chesnut-Brown-1.png", height = 100, fit = ImageFit.CONTAIN), Text("Hoodie #2"), Text("$55")])
             hoodie = Column(controls = [Image(src = f"/hoodie.jpg", height = 100, fit = ImageFit.CONTAIN), Text("Hoodie"), Text("$45")])
-            itemsDisplay.controls.append(cargos, hoodie2, hoodie)
+            itemsDisplay.controls.append(cargos)
+            itemsDisplay.controls.append(hoodie)
+            itemsDisplay.controls.append(hoodie2)
             '''for i in items:
                 print(i)
                 x = Column(controls = [Image(src = i[0], height = 100, fit = ImageFit.CONTAIN), Text(i[1]), Text(i[2])])
@@ -516,7 +522,7 @@ def main(page: Page):
                         tooltip = "Logout",
                         on_click=lambda _: page.go("/auth")
                     ),
-                ]), tabs]
+                ]), tabs, BugReportButton]
             ))
         elif page.route == '/messages':
             page.views.append(View(
@@ -601,7 +607,16 @@ def main(page: Page):
                         tooltip = "Exit",
                         on_click = lambda _: reroute()
                     )]), x]))
-
+        elif page.route == "/bug":
+            issue = TextField(label = "Name of issue")
+            descriptionfield = TextField(label = "Description of Issue")
+            submitBug = ElevatedButton(text = "Submit", on_click = lambda _: reroute())
+            page.views.append(View('/bug', [AppBar(title = Text("Report Bug"), actions = [IconButton(
+                        icon = icons.ARROW_BACK,
+                        icon_color = colors.BLACK,
+                        tooltip = "Exit",
+                        on_click = lambda _: reroute()
+                    )]), issue, descriptionfield, submitBug]))
     def view_pop(view):
         page.views.pop()
         top_view = page.views[-1]
